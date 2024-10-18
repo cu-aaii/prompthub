@@ -1,0 +1,11 @@
+
+name: Test Prompt
+tags: [AI, Machine Learning]
+meta:
+  authors: [John Doe]
+  institution: University of Chicago
+version: "0.0.1"
+text: |
+  This is a test prompt text.
+description: |
+  This is a test description for the prompt.
