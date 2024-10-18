@@ -1,0 +1,11 @@
+
+name: Sample Prompt
+text: |
+  AI, Machine Learning, Data Science
+description: |
+  John Doe
+tags: [University of Chicago]
+meta:
+  authors: [This is a sample prompt text for testing purposes.]
+  institution: This is a sample description for the prompt. It provides usage information and examples.
+version: "0.0.1"
