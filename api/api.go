@@ -20,9 +20,14 @@ import (
 func Serve() {
 	r := chi.NewRouter() // root router
 	r.Use(render.SetContentType(render.ContentTypeJSON))
+	// r.Use(cors.Handler(cors.Options{
+	// 	AllowedOrigins: viper.GetStringSlice("allowed_origins"),
+	// }))
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins: viper.GetStringSlice("allowed_origins"),
-	}))
+		AllowedOrigins: []string{"*"},  // Allow all origins
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{"Accept", "Content-Type", "Origin"},
+	}))	
 	output.DEBUG.Printf("AllowedOrigins set to: %s", viper.GetStringSlice("allowed_origins"))
 
 	promptsRouter := chi.NewRouter()
@@ -30,7 +35,7 @@ func Serve() {
 	promptsRouter.Get("/*", GetPrompt)
 
 	r.Mount("/prompts", promptsRouter)
-
+	
 	promptCardRouter := chi.NewRouter()
 	promptCardRouter.Get("/*", GetCard)
 
