@@ -3,18 +3,25 @@ package index
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"gopkg.in/yaml.v3"
+	"time"
+
+	"github.com/deepset-ai/prompthub/output"
 )
 
 type PromptIndex map[string]*Prompt
 
 var prompts PromptIndex
 var cards map[string]string
+var promptCache []*Prompt
+var promptCacheMutex sync.RWMutex
 
 func GetPrompt(name string) (*Prompt, error) {
 	val, ok := prompts[name]
@@ -25,13 +32,26 @@ func GetPrompt(name string) (*Prompt, error) {
 }
 
 func GetPrompts() []*Prompt {
-	v := make([]*Prompt, 0, len(prompts))
+	var prompts []*Prompt
 
-	for _, value := range prompts {
-		v = append(v, value)
+	// Read from existing YAML files
+	files, err := ioutil.ReadDir("prompts")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	return v
+	for _, file := range files {
+		if filepath.Ext(file.Name()) == ".yaml" {
+			prompt, err := readPromptFromFile(filepath.Join("prompts", file.Name()))
+			if err != nil {
+				log.Printf("Error reading prompt from %s: %v", file.Name(), err)
+				continue
+			}
+			prompts = append(prompts, prompt)
+		}
+	}
+
+	return prompts
 }
 
 func GetCard(name string) (string, error) {
@@ -88,4 +108,46 @@ func Init(path string) error {
 	}
 
 	return nil
+}
+
+func ReloadPrompts() {
+	newPrompts := GetPrompts()
+	promptCacheMutex.Lock()
+	promptCache = nil // Clear existing cache
+	promptCache = newPrompts
+	promptCacheMutex.Unlock()
+	output.INFO.Printf("Reloaded %d prompts", len(newPrompts))
+}
+
+func GetCachedPrompts() []*Prompt {
+	promptCacheMutex.RLock()
+	defer promptCacheMutex.RUnlock()
+	return promptCache
+}
+
+// Call this function on startup and periodically
+func StartPromptReloader(interval time.Duration) {
+	ReloadPrompts() // Initial load
+	ticker := time.NewTicker(interval)
+	go func() {
+		for range ticker.C {
+			ReloadPrompts()
+		}
+	}()
+}
+
+// Add this function
+func readPromptFromFile(filePath string) (*Prompt, error) {
+	yamlFile, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("read file error: %v", err)
+	}
+
+	var prompt Prompt
+	err = yaml.Unmarshal(yamlFile, &prompt)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal error: %v", err)
+	}
+
+	return &prompt, nil
 }

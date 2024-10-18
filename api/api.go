@@ -18,6 +18,8 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
 	"github.com/spf13/viper"
+	"gopkg.in/gomail.v2"
+	"github.com/go-git/go-git/v5"
 )
 
 // Serve starts the HTTP server and blocks
@@ -38,6 +40,8 @@ func Serve() {
 	promptsRouter.Get("/", ListPrompts)
 	promptsRouter.Get("/*", GetPrompt)
 	promptsRouter.Post("/request", HandleNewPromptRequest)
+	promptsRouter.Post("/github-webhook", HandleGitHubWebhook)
+	r.Post("/reload-prompts", HandleReloadPrompts)
 
 	r.Mount("/prompts", promptsRouter)
 
@@ -229,4 +233,76 @@ func ErrInternalServer(err error) render.Renderer {
 		StatusText:     "Internal Server Error",
 		ErrorText:      err.Error(),
 	}
+}
+
+// Add this function to send emails
+func sendEmail(to, subject, body string) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", "your-email@example.com")
+	m.SetHeader("To", to)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", body)
+
+	d := gomail.NewDialer("smtp.example.com", 587, "your-email@example.com", "your-password")
+
+	return d.DialAndSend(m)
+}
+
+// Add a new handler for GitHub webhooks
+func HandleGitHubWebhook(w http.ResponseWriter, r *http.Request) {
+	payload, err := github.ValidatePayload(r, []byte("your-webhook-secret"))
+	if err != nil {
+		http.Error(w, "Invalid payload", http.StatusBadRequest)
+		return
+	}
+
+	event, err := github.ParseWebHook(github.WebHookType(r), payload)
+	if err != nil {
+		http.Error(w, "Unable to parse webhook", http.StatusBadRequest)
+		return
+	}
+
+	switch e := event.(type) {
+	case *github.PullRequestEvent:
+		if e.GetAction() == "closed" && e.PullRequest.GetMerged() {
+			// PR was merged
+			go syncRepository() // Run this in a goroutine to not block the response
+			sendEmail(e.PullRequest.User.GetEmail(), "Your prompt was approved", "Congratulations! Your prompt has been approved and merged.")
+		} else if e.GetAction() == "closed" && !e.PullRequest.GetMerged() {
+			// PR was closed without merging
+			sendEmail(e.PullRequest.User.GetEmail(), "Your prompt was not approved", "We're sorry, but your prompt was not approved at this time.")
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func syncRepository() {
+	r, err := git.PlainOpen("/path/to/your/local/repository")
+	if err != nil {
+		output.ERROR.Printf("Failed to open repository: %v", err)
+		return
+	}
+
+	w, err := r.Worktree()
+	if err != nil {
+		output.ERROR.Printf("Failed to get worktree: %v", err)
+		return
+	}
+
+	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		output.ERROR.Printf("Failed to pull changes: %v", err)
+		return
+	}
+
+	output.INFO.Printf("Repository synced successfully")
+	index.ReloadPrompts() // Reload prompts after successful sync
+}
+
+func HandleReloadPrompts(w http.ResponseWriter, r *http.Request) {
+	// You might want to add authentication for this endpoint
+	index.ReloadPrompts()
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Prompts reloaded successfully"))
 }

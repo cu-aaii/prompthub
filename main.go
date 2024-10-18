@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/deepset-ai/prompthub/api"
 	"github.com/deepset-ai/prompthub/index"
@@ -35,6 +36,7 @@ func main() {
 	}
 
 	// Start the HTTP server, block until shutdown
+	index.StartPromptReloader(1 * time.Second) // Reload prompts every 5 seconds
 	api.Serve()
 	os.Exit(0)
 }
