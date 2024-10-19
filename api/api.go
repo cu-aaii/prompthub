@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/google/go-github/v45/github"
@@ -186,15 +187,31 @@ meta:
   institution: %s
 `, request.Name, request.Text, request.Description, request.Tags, request.Author, request.Institution)
 
-	// Create or update file in the new branch
+	// Define filePath
 	filePath := fmt.Sprintf("prompts/%s.yaml", request.Name)
+
+	// Check if the file already exists
+	fileContent, _, _, err := client.Repositories.GetContents(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentGetOptions{
+		Ref: branchName,
+	})
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+		return fmt.Errorf("error checking file existence: %v", err)
+	}
+
+	var sha *string
+	if fileContent != nil {
+		sha = fileContent.SHA
+	}
+
+	// Create or update file in the new branch
 	_, _, err = client.Repositories.CreateFile(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentFileOptions{
 		Message: github.String(fmt.Sprintf("Add new prompt: %s", request.Name)),
 		Content: []byte(yamlContent),
 		Branch:  github.String(branchName),
+		SHA:     sha, // Add the SHA if the file exists
 	})
 	if err != nil {
-		return fmt.Errorf("error creating file: %v", err)
+		return fmt.Errorf("error creating/updating file: %v", err)
 	}
 
 	// Create pull request
