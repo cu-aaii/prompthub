@@ -116,13 +116,14 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 // New struct to represent a prompt request
 type PromptRequest struct {
-	Name        string `json:"name"`
-	Text        string `json:"text"`
+	Name        string `json:"promptName"`
+	Text        string `json:"promptText"`
 	Description string `json:"description"`
 	Tags        string `json:"tags"`
 	Meta        struct {
-		Author      string `json:"author"`
+		Author      string `json:"name"`
 		Institution string `json:"institution"`
+		Email       string `json:"email"`
 	} `json:"meta"`
 }
 
