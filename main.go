@@ -46,6 +46,8 @@ func initConfig(configPath *string) {
 	viper.SetDefault("port", "80")
 	viper.SetDefault("prompts_path", "./prompts")
 	viper.SetDefault("allowed_origins", []string{"https://prompthub.deepset.ai"})
+	// Add this line to set a default value for github_token
+	viper.SetDefault("github_token", "")
 
 	// Automatically bind all the config options to env vars
 	viper.AutomaticEnv()
@@ -64,4 +66,8 @@ func initConfig(configPath *string) {
 		output.DEBUG.Println("Config file found at", viper.ConfigFileUsed())
 	}
 
+	// Add this block to check if the github_token is set
+	if viper.GetString("github_token") == "" {
+		output.INFO.Println("Warning: github_token is not set")
+	}
 }
