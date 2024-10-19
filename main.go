@@ -34,7 +34,7 @@ func main() {
 	if err := index.Init(viper.GetString("prompts_path")); err != nil {
 		os.Exit(1)
 	}
-	output.INFO.Printf("GITHUB_TOKEN: %s", viper.GetString("github_token"))
+	
 	// Start the HTTP server, block until shutdown
 	index.StartPromptReloader(1 * time.Second) // Reload prompts every 5 seconds
 	api.Serve()
