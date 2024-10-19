@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"time"
 
 	"github.com/google/go-github/v45/github"
@@ -25,6 +24,9 @@ import (
 func Serve() {
 	r := chi.NewRouter() // root router
 	r.Use(render.SetContentType(render.ContentTypeJSON))
+	// r.Use(cors.Handler(cors.Options{
+	// 	AllowedOrigins: viper.GetStringSlice("allowed_origins"),
+	// }))
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins: []string{"*"}, // Allow all origins
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
@@ -46,7 +48,8 @@ func Serve() {
 
 	// Start the HTTP server
 	srv := &http.Server{
-		Addr:         fmt.Sprintf("0.0.0.0:%s", viper.GetString("port")),
+		Addr: fmt.Sprintf("0.0.0.0:%s", viper.GetString("port")),
+		// Set timeouts to avoid Slowloris attacks.
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
@@ -63,6 +66,8 @@ func Serve() {
 	output.INFO.Println("Prompthub running at", srv.Addr)
 
 	c := make(chan os.Signal, 1)
+	// We'll accept graceful shutdowns when quit via SIGINT (Ctrl+C)
+	// SIGKILL, SIGQUIT or SIGTERM (Ctrl+/) will not be caught.
 	signal.Notify(c, os.Interrupt)
 
 	// Block until we receive our signal.
@@ -71,6 +76,8 @@ func Serve() {
 	// Create a deadline to wait for.
 	ctx, cancel := context.WithTimeout(context.Background(), 10)
 	defer cancel()
+	// Doesn't block if no connections, but will otherwise wait
+	// until the timeout deadline.
 	srv.Shutdown(ctx)
 	output.INFO.Println("shutting down")
 }
@@ -117,13 +124,14 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 // New struct to represent a prompt request
 type PromptRequest struct {
-	Name        string `json:"promptName"`
-	Text        string `json:"promptText"`
+	Name        string `json:"name"`
+	Text        string `json:"text"`
 	Description string `json:"description"`
 	Tags        string `json:"tags"`
-	Author      string `json:"name"`
-	Institution string `json:"institution"`
-	Email       string `json:"email"`
+	Meta        struct {
+		Author      string `json:"author"`
+		Institution string `json:"institution"`
+	} `json:"meta"`
 }
 
 func HandleNewPromptRequest(w http.ResponseWriter, r *http.Request) {
@@ -185,33 +193,17 @@ meta:
   author: 
     - %s
   institution: %s
-`, request.Name, request.Text, request.Description, request.Tags, request.Author, request.Institution)
-
-	// Define filePath
-	filePath := fmt.Sprintf("prompts/%s.yaml", request.Name)
-
-	// Check if the file already exists
-	fileContent, _, _, err := client.Repositories.GetContents(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentGetOptions{
-		Ref: branchName,
-	})
-	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
-		return fmt.Errorf("error checking file existence: %v", err)
-	}
-
-	var sha *string
-	if fileContent != nil {
-		sha = fileContent.SHA
-	}
+`, request.Name, request.Text, request.Description, request.Tags, request.Meta.Author, request.Meta.Institution)
 
 	// Create or update file in the new branch
+	filePath := fmt.Sprintf("prompts/%s.yaml", request.Name)
 	_, _, err = client.Repositories.CreateFile(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentFileOptions{
 		Message: github.String(fmt.Sprintf("Add new prompt: %s", request.Name)),
 		Content: []byte(yamlContent),
 		Branch:  github.String(branchName),
-		SHA:     sha, // Add the SHA if the file exists
 	})
 	if err != nil {
-		return fmt.Errorf("error creating/updating file: %v", err)
+		return fmt.Errorf("error creating file: %v", err)
 	}
 
 	// Create pull request
