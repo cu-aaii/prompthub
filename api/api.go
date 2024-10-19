@@ -151,7 +151,6 @@ func createGitHubPR(request PromptRequest) error {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: viper.GetString("github_token")},
 	)
-	output.INFO.Printf("GITHUB_TOKEN: %s", viper.GetString("github_token"))
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
