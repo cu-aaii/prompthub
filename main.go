@@ -29,7 +29,7 @@ func main() {
 
 	// Bootstrap config, this has to be called first
 	initConfig(configPath)
-
+	
 	// Initialize the index by reading all the prompts from file
 	if err := index.Init(viper.GetString("prompts_path")); err != nil {
 		os.Exit(1)
@@ -48,7 +48,6 @@ func initConfig(configPath *string) {
 	viper.SetDefault("allowed_origins", []string{"https://prompthub.deepset.ai"})
 
 	// Automatically bind all the config options to env vars
-	viper.SetEnvPrefix("prompthub")
 	viper.AutomaticEnv()
 
 	// Setup the config lookup
