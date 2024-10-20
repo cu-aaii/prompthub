@@ -1,0 +1,10 @@
+name: Sample Prompt 4
+text: |
+  This is a sample prompt text for testing purposes.
+description: This is a sample description for the prompt. It provides usage information and examples.
+tags: 
+  - AI, Machine Learning, Data Science
+meta:
+  author: 
+    - John Doe
+  institution: University of Chicago
