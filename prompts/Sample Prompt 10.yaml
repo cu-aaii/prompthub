@@ -1,0 +1,20 @@
+name: Sample Prompt 10
+text: |
+  This is a sample prompt text for testing purposes.
+
+{DSED}
+
+{ANSWER}
+description: This is a sample description for the prompt. It provides usage information and examples.
+
+Usage
+
+Examples
+
+Hint
+tags: 
+  - AI, Machine Learning, Data Science,ML
+meta:
+  author: 
+    - John Doe
+  institution: University of Chicago
