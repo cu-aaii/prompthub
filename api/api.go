@@ -9,6 +9,8 @@ import (
 	"os/signal"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/google/go-github/v45/github"
 	"golang.org/x/oauth2"
 
@@ -182,23 +184,27 @@ func createGitHubPR(request PromptRequest) error {
 		return fmt.Errorf("error creating branch: %v", err)
 	}
 	// Create YAML content
-	yamlContent := fmt.Sprintf(`name: %s
-text: |
-  %s
-description: %s
-tags: 
-  - %s
-meta:
-  author: 
-    - %s
-  institution: %s
-`, request.Name, request.Text, request.Description, request.Tags, request.Author, request.Institution)
+	promptData := map[string]interface{}{
+		"name":        request.Name,
+		"text":        request.Text,
+		"description": request.Description,
+		"tags":        []string{request.Tags},
+		"meta": map[string]interface{}{
+			"author":      []string{request.Author},
+			"institution": request.Institution,
+		},
+	}
+
+	yamlContent, err := yaml.Marshal(promptData)
+	if err != nil {
+		return fmt.Errorf("error marshaling YAML: %v", err)
+	}
 
 	// Create or update file in the new branch
 	filePath := fmt.Sprintf("prompts/%s.yaml", request.Name)
 	_, _, err = client.Repositories.CreateFile(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentFileOptions{
 		Message: github.String(fmt.Sprintf("Add new prompt: %s", request.Name)),
-		Content: []byte(yamlContent),
+		Content: yamlContent,
 		Branch:  github.String(branchName),
 	})
 	if err != nil {
