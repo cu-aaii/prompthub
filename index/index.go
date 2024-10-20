@@ -8,20 +8,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 
 	"gopkg.in/yaml.v3"
-	"time"
-
-	"github.com/deepset-ai/prompthub/output"
+	
 )
 
 type PromptIndex map[string]*Prompt
 
 var prompts PromptIndex
 var cards map[string]string
-var promptCache []*Prompt
-var promptCacheMutex sync.RWMutex
 
 func GetPrompt(name string) (*Prompt, error) {
 	val, ok := prompts[name]
@@ -108,32 +103,6 @@ func Init(path string) error {
 	}
 
 	return nil
-}
-
-func ReloadPrompts() {
-	newPrompts := GetPrompts()
-	promptCacheMutex.Lock()
-	promptCache = nil // Clear existing cache
-	promptCache = newPrompts
-	promptCacheMutex.Unlock()
-	output.INFO.Printf("Reloaded %d prompts", len(newPrompts))
-}
-
-func GetCachedPrompts() []*Prompt {
-	promptCacheMutex.RLock()
-	defer promptCacheMutex.RUnlock()
-	return promptCache
-}
-
-// Call this function on startup and periodically
-func StartPromptReloader(interval time.Duration) {
-	ReloadPrompts() // Initial load
-	ticker := time.NewTicker(interval)
-	go func() {
-		for range ticker.C {
-			ReloadPrompts()
-		}
-	}()
 }
 
 // Add this function

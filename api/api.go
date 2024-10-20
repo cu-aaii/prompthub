@@ -210,7 +210,7 @@ meta:
 		Title: github.String(fmt.Sprintf("New Prompt Request: %s", request.Name)),
 		Head:  github.String(branchName),
 		Base:  github.String(baseBranch),
-		Body:  github.String(fmt.Sprintf("New prompt request from %s (%s)", request.Name, request.Text)),
+		Body:  github.String(fmt.Sprintf("New prompt request from %s, %s (%s)", request.Author, request.Institution, request.Email)),
 	})
 	if err != nil {
 		return fmt.Errorf("error creating pull request: %v", err)
