@@ -19,6 +19,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
@@ -185,6 +186,7 @@ func createGitHubPR(request PromptRequest) error {
 	}
 	// Create YAML content
 	promptData := map[string]interface{}{
+		"id":          uuid.New().String(),
 		"name":        request.Name,
 		"text":        request.Text,
 		"description": request.Description,

@@ -2,6 +2,7 @@ package index
 
 // Prompt data model.
 type Prompt struct {
+	ID          string                 `yaml:"id"`
 	Name        string                 `json:"name"`
 	Tags        []string               `json:"tags,omitempty"`
 	Meta        map[string]interface{} `json:"meta,omitempty"`

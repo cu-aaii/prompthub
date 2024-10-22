@@ -18,10 +18,11 @@ type PromptIndex map[string]*Prompt
 var prompts PromptIndex
 var cards map[string]string
 
-func GetPrompt(name string) (*Prompt, error) {
-	val, ok := prompts[name]
-	if ok {
-		return val, nil
+func GetPrompt(id string) (*Prompt, error) {
+	for _, prompt := range prompts {
+		if prompt.ID == id {
+			return prompt, nil
+		}
 	}
 	return nil, errors.New("not found")
 }
@@ -49,10 +50,11 @@ func GetPrompts() []*Prompt {
 	return prompts
 }
 
-func GetCard(name string) (string, error) {
-	val, ok := cards[name]
-	if ok {
-		return val, nil
+func GetCard(id string) (string, error) {
+	for promptName, card := range cards {
+		if prompts[promptName].ID == id {
+			return card, nil
+		}
 	}
 	return "", errors.New("not found")
 }
