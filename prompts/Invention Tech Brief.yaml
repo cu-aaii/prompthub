@@ -1,0 +1,38 @@
+description: "Notes:  \nAdd more context if needed. \nModify type of document or the
+  part of the document that is relevant \nModify the description of each structure
+  if needed \nIf you have additional information to feed, you can refine the prompt
+  with additional document \n"
+id: 6ded421e-af7f-43b3-b30b-322c312eb509
+meta:
+  author:
+  - Lynda Inseque
+  institution: Cornell University
+name: Invention Tech Brief
+summary: Creates a tech brief from invention disclosure
+tags:
+- Technology Licensing, Communication
+text: "Please write a tech brief according to the “Tech Brief Structure” guideline
+  below using the write-up above. Write this tech brief with the audience in mind:
+  industry partners, entrepreneurs, R&D Managers, CSOs, or technology scouts within
+  relevant industries.\nNote that any claims or figures cited in your responses must
+  come from authentic and published sources, either in the write-up or external peer-reviewed
+  articles. Never make up any sources. If you are unsure about a source, say that
+  you don’t know.\n\nTech Brief Structure:\n1.\tInvention Summary: Write one sentence
+  that succinctly describes the technology or invention without being too technical.\n2.\tBackground:
+  Describe the problems the invention aims to solve, starting with the market sector
+  the technology addresses. Highlight the limitations of current existing solutions.\n3.\tTechnology
+  Overview: Describe the core invention, including its main components or processes,
+  without overly technical language to keep it accessible to a broader audience. Include
+  the best and most relevant data or a drawing of an example of the invention (select
+  an image or chart from the document when available).\n4.\tBenefits: List the advantages
+  of the technology over existing ones. This could include new features, improvements
+  in efficiency, cost, environmental impact, easier production, plug-and-play products,
+  or user experience.\n5.\tApplications: Identify potential applications of the described
+  technology in various industries. Be specific about how it can be implemented or
+  integrated into existing systems.\n6.\tKeywords: Provide a list of keywords that
+  represent the core aspects of the technology.\n7.\tSuggested Companies: Based on
+  the applications and benefits, suggest companies that might be interested in the
+  technology. Consider industries that would benefit most from the invention.\n8.\tHyperlinks
+  to Relevant Documents: Include links to the patent document and any other relevant
+  publications or research papers for further reading, include paper from the inventors
+  listed in the patent document as well.\n"
