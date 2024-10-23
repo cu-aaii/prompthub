@@ -1,0 +1,51 @@
+description: "GenAI Use Case: Contract Analysis\nObjective: Compare vendor/sponsor
+  agreements to your institution’s standard terms and conditions.\nKey Rules:\n1.\tAvoid
+  using the upload button: ¬When using the upload button to upload the contract(s),
+  you’re most likely triggering the RAG system behind the application, it's important
+  to understand that your document is being chunked and indexed in a Vector Database.
+  When performing critical tasks like contract analysis, you want the AI to consider
+  the entire file rather than isolated parts. To ensure this, copy the content of
+  the agreement and paste it directly into the chat box. Don’t worry about formatting—the
+  LLM doesn't mind.\n2.\tAsk the AI to \"Show Its Work\": To reduce hallucinations
+  and ground the model in the facts provided within the vendor/sponsor contract and
+  Cornell's standard terms and conditions, we use a technique we call \"show me your
+  work.\" This is similar to the Chain of Thought prompting method, where we ask the
+  model to present its reasoning explicitly before providing the answer. In this use
+  case, the prompt directs the AI as follows:\no\tSponsor Term: [Quote the relevant
+  term from the provided agreement]\no\tCornell Term: [Quote the corresponding term
+  from Cornell's standard agreement]\no\tConflict Reasoning: [Explain why these terms
+  are in conflict]\no\tSuggested Conflict Resolution: [Propose a potential solution
+  to resolve the conflict]\nBy having the AI explicitly write down the relevant quotes
+  first, it becomes harder for the model to hallucinate. Once these specific tokens
+  are written, the model is more likely to provide reasonable conflict identifications
+  and resolutions."
+id: 992088d2-17c3-466e-89db-20127179cf34
+meta:
+  author:
+  - Ayham Boucher
+  institution: Cornell University
+name: Contract Analysis
+summary: Compare Sponsor or Vendor contract terms and conditions with the institution's
+  standard terms and conditions
+tags:
+- Contract Analysis, Procurement, Grants
+text: "You are an expert sponsored program agreement negotiator. Your task is to help
+  me improve my job performance by comparing agreements for conflicting terms and
+  conditions. You are not providing legal advice; instead, you're assisting me in
+  reviewing these agreements so I can conduct the legal review myself.\nI will provide
+  you with the terms and conditions of a research agreement. Your task is to compare
+  these terms with Cornell's standard research agreement terms and conditions. Please
+  follow these steps:\nIdentify any conflicts between the provided agreement and Cornell's
+  standard terms.\nFor each conflict, present the information in this format: Sponsor
+  term: [Quote the relevant term from the provided agreement] Cornell term: [Quote
+  the corresponding term from Cornell's standard agreement] Conflict reasoning: [Explain
+  why these terms are in conflict] Suggested Conflict resolution: [Propose a potential
+  solution to resolve the conflict]\nBe thorough in your analysis, highlighting any
+  terms that could potentially be conflicting, even if the conflict is not immediately
+  obvious.\nAfter addressing all conflicts, identify any terms in the provided agreement
+  that are not present in Cornell's standard research agreement. List these as: Sponsor
+  Research Agreement Missing terms: [List the terms that are present in the provided
+  agreement but missing from Cornell's standard agreement]\nHere are Cornell University's
+  standard research terms and conditions: \n\"\"\"\n{Cornell Standard Terms and Conditions}\n\"\"\"\nNow,
+  please analyze the following sponsor agreement in comparison to Cornell's standard
+  terms\n\"\"\"\n{Sponsor Terms and Conditions}\n\"\"\"\n"
