@@ -9,4 +9,5 @@ type Prompt struct {
 	Version     string                 `json:"version"`
 	Text        string                 `json:"text"`
 	Description string                 `json:"description"`
+	Summary     string                 `json:"summary"`
 }

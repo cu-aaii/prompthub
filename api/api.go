@@ -127,13 +127,14 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 // New struct to represent a prompt request
 type PromptRequest struct {
-	Name        string `json:"promptName"`
-	Text        string `json:"promptText"`
-	Description string `json:"description"`
-	Tags        string `json:"tags"`
-	Author      string `json:"name"`
-	Institution string `json:"institution"`
-	Email       string `json:"email"`
+	Name         string `json:"promptName"`
+	Summary      string `json:"promptSummary"`  // New field
+	Text         string `json:"promptText"`
+	Description  string `json:"description"`
+	Tags         string `json:"tags"`
+	Author       string `json:"name"`
+	Institution  string `json:"institution"`
+	Email        string `json:"email"`
 }
 
 func HandleNewPromptRequest(w http.ResponseWriter, r *http.Request) {
@@ -188,6 +189,7 @@ func createGitHubPR(request PromptRequest) error {
 	promptData := map[string]interface{}{
 		"id":          uuid.New().String(),
 		"name":        request.Name,
+		"summary":     request.Summary,  // Add the new summary field
 		"text":        request.Text,
 		"description": request.Description,
 		"tags":        []string{request.Tags},
