@@ -1,0 +1,34 @@
+description: Note that results will depend on weather your AI can search the internet
+  or not
+id: 4811d5e7-01a8-4c6e-b2df-87235b78c625
+meta:
+  author:
+  - Lynda C. Inseque
+  institution: Cornell University
+name: Invention Market Research
+summary: Market Research for invention disclosure
+tags:
+- Technology Licensing, Market Research
+text: "Prompt for Market Research\n\nA description of my technology is attached.\n\nPlease
+  conduct a comprehensive market research on the sector related to my technology.
+  Any claims, opinions, or figures that you cite in your responses must be cited with
+  reference link to an authentic and published source. You will never make up any
+  sources of your own. If you are unsure about a source, you will say that you don’t
+  know.\n\n1/ Write a sentence to describe the market and segments in the U.S. and
+  address the problem-solution. \n\n2/ Assess the market and segment and report and
+  present findings in a table as follows:\nMarket Size by segment\tMarket Trends Analysis\tCompetitor
+  Market Share\tMarket Growth over time (GACR)\n\nConsider the following:\n•\tEvaluate
+  the market size and Growth Potential:\no\tTotal Addressable Market (TAM): Estimate
+  the total market demand for my technology.\no\t Serviceable Available Market (SAM):
+  Calculate the portion of the TAM that my technology can realistically target.\no\tServiceable
+  Obtainable Market (SOM): Determine the share of the SAM that my company can capture
+  in the short term.\n•\tList the key market drivers.\n•\tIdentify the growth potential
+  (CAGR).\n•\tAssess Regulatory and Legal Environment\n•\tProfile the main competitors
+  with both commercialized products and those in the development pipeline.\n•\tHighlight
+  a couple of high-impact research initiatives currently underway, \n\n3/ Analyze
+  the competitive landscape by creating another table comparing the technology with
+  existing competitors:\nCriteria\tMy technology\tCompetitor 1\tCompetitor 2\tCompetitor
+  3\nProduction Cost\t\t\t\t\nScalability\t\t\t\t\nKey featured\t\t\t\t\nRegulatory\t\t\t\t\nPricing\t\t\t\t\nDistribution
+  Channel\t\t\t\t\n\n\n==\n\nDo not include\n\n4/ Create a radar graph that itemized
+  the following criteria: \n•\tmarket value, \n•\tstrategic value, \n•\tregulatory
+  considerations,\n•\teconomic value.\n"

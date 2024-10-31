@@ -9,16 +9,17 @@ import (
 	"os/signal"
 	"time"
 
+	"gopkg.in/yaml.v2"
+
 	"github.com/google/go-github/v45/github"
 	"golang.org/x/oauth2"
-
-	"strings"
 
 	"github.com/deepset-ai/prompthub/index"
 	"github.com/deepset-ai/prompthub/output"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
@@ -126,13 +127,14 @@ func GetCard(w http.ResponseWriter, r *http.Request) {
 
 // New struct to represent a prompt request
 type PromptRequest struct {
-	Name        string   `json:"name"`
-	Institution string   `json:"institution"`
-	Email       string   `json:"email"`
-	Tags        []string `json:"tags"`
-	PromptName  string   `json:"promptName"`
-	PromptText  string   `json:"promptText"`
-	Description string   `json:"description"`
+	Name         string `json:"promptName"`
+	Summary      string `json:"promptSummary"`  // New field
+	Text         string `json:"promptText"`
+	Description  string `json:"description"`
+	Tags         string `json:"tags"`
+	Author       string `json:"name"`
+	Institution  string `json:"institution"`
+	Email        string `json:"email"`
 }
 
 func HandleNewPromptRequest(w http.ResponseWriter, r *http.Request) {
@@ -165,7 +167,7 @@ func createGitHubPR(request PromptRequest) error {
 
 	// Get the SHA of the latest commit on the base branch
 	baseBranch := "main" // or "master", depending on your repository
-	ref, _, err := client.Git.GetRef(ctx, "cu-aaii", "prompthub", "refs/heads/"+baseBranch)
+	ref, _, err := client.Git.GetRef(ctx, "ar2427", "prompthub", "refs/heads/"+baseBranch)
 	if err != nil {
 		return fmt.Errorf("error getting base branch reference: %v", err)
 	}
@@ -178,29 +180,35 @@ func createGitHubPR(request PromptRequest) error {
 			SHA: ref.Object.SHA,
 		},
 	}
-	_, _, err = client.Git.CreateRef(ctx, "cu-aaii", "prompthub", newRef)
+	_, _, err = client.Git.CreateRef(ctx, "ar2427", "prompthub", newRef)
 	if err != nil {
 		output.ERROR.Printf("GitHub API error: %v", err)
 		return fmt.Errorf("error creating branch: %v", err)
 	}
 	// Create YAML content
-	yamlContent := fmt.Sprintf(`name: %s
-text: |
-  %s
-description: %s
-tags: 
-  - %s
-meta:
-  author: 
-    - %s
-  institution: %s
-`, request.PromptName, request.PromptText, request.Description, strings.Join(request.Tags, ", "), request.Name, request.Institution)
+	promptData := map[string]interface{}{
+		"id":          uuid.New().String(),
+		"name":        request.Name,
+		"summary":     request.Summary,  // Add the new summary field
+		"text":        request.Text,
+		"description": request.Description,
+		"tags":        []string{request.Tags},
+		"meta": map[string]interface{}{
+			"author":      []string{request.Author},
+			"institution": request.Institution,
+		},
+	}
+
+	yamlContent, err := yaml.Marshal(promptData)
+	if err != nil {
+		return fmt.Errorf("error marshaling YAML: %v", err)
+	}
 
 	// Create or update file in the new branch
-	filePath := fmt.Sprintf("prompts/%s.yaml", request.PromptName)
-	_, _, err = client.Repositories.CreateFile(ctx, "cu-aaii", "prompthub", filePath, &github.RepositoryContentFileOptions{
-		Message: github.String(fmt.Sprintf("Add new prompt: %s", request.PromptName)),
-		Content: []byte(yamlContent),
+	filePath := fmt.Sprintf("prompts/%s.yaml", request.Name)
+	_, _, err = client.Repositories.CreateFile(ctx, "ar2427", "prompthub", filePath, &github.RepositoryContentFileOptions{
+		Message: github.String(fmt.Sprintf("Add new prompt: %s", request.Name)),
+		Content: yamlContent,
 		Branch:  github.String(branchName),
 	})
 	if err != nil {
@@ -208,11 +216,11 @@ meta:
 	}
 
 	// Create pull request
-	newPR, _, err := client.PullRequests.Create(ctx, "cu-aaii", "prompthub", &github.NewPullRequest{
-		Title: github.String(fmt.Sprintf("New Prompt Request: %s", request.PromptName)),
+	newPR, _, err := client.PullRequests.Create(ctx, "ar2427", "prompthub", &github.NewPullRequest{
+		Title: github.String(fmt.Sprintf("New Prompt Request: %s", request.Name)),
 		Head:  github.String(branchName),
 		Base:  github.String(baseBranch),
-		Body:  github.String(fmt.Sprintf("New prompt request from %s (%s)", request.Name, request.Email)),
+		Body:  github.String(fmt.Sprintf("New prompt request from %s, %s (%s)", request.Author, request.Institution, request.Email)),
 	})
 	if err != nil {
 		return fmt.Errorf("error creating pull request: %v", err)
