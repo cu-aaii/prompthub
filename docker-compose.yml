@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  prompthub:
+    build: .
+    ports:
+      - "80:80"
+    volumes:
+      - ./prompts:/app/prompts
+      - ./prompthub.yaml:/app/prompthub.yaml
+    environment:
+      - PORT=80 
