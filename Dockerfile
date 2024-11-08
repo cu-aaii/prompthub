@@ -19,8 +19,8 @@ COPY --from=build /go/src/github.com/deepset-ai/prompthub/prompthub /usr/bin/pro
 # following line:
 # COPY prompthub.yaml.example /prompthub.yaml
 COPY prompts ./prompts
-COPY prompthub.yaml.example /prompthub.yaml
+# COPY prompthub.yaml.example /prompthub.yaml
 
 EXPOSE 80
 
-CMD ["prompthub", "-c", "/prompthub.yaml"]
+CMD ["prompthub", "-c", "/app/prompthub.yaml"]

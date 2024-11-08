@@ -50,13 +50,16 @@ func initConfig(configPath *string) {
 	// Automatically bind all the config options to env vars
 	viper.AutomaticEnv()
 
-	// Setup the config lookup
-	viper.SetConfigName("prompthub.yaml")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
 	if *configPath != "" {
-		viper.AddConfigPath(*configPath)
+		// Use SetConfigFile for full file paths
+		viper.SetConfigFile(*configPath)
+	} else {
+		// Default config file lookup
+		viper.SetConfigName("prompthub.yaml")
+		viper.SetConfigType("yaml")
+		viper.AddConfigPath(".")
 	}
+
 	err := viper.ReadInConfig()
 	if err != nil {
 		output.INFO.Println("Configuration file not found, running with default parameters")

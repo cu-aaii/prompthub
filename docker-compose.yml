@@ -7,6 +7,6 @@ services:
       - "80:80"
     volumes:
       - ./prompts:/app/prompts
-      - ./prompthub.yaml:/prompthub.yaml
+      - ./prompthub.yaml:/app/prompthub.yaml
     environment:
       - PORT=80 
