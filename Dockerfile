@@ -8,7 +8,7 @@ RUN go mod download
 COPY . .
 RUN go build -o prompthub
 
-FROM alpine:3.17
+FROM alpine:3.17 AS runtime
 
 RUN apk add --no-cache ca-certificates
 
