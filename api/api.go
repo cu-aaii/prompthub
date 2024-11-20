@@ -36,6 +36,9 @@ func Serve() {
 	}))
 	output.DEBUG.Printf("AllowedOrigins set to: %s", viper.GetStringSlice("allowed_origins"))
 
+	// Add health check endpoint
+	r.Get("/health", HealthCheck)
+
 	promptsRouter := chi.NewRouter()
 	promptsRouter.Get("/", ListPrompts)
 	promptsRouter.Get("/*", GetPrompt)
@@ -237,4 +240,9 @@ func ErrInternalServer(err error) render.Renderer {
 		StatusText:     "Internal Server Error",
 		ErrorText:      err.Error(),
 	}
+}
+
+// Add this new handler function at the bottom of the file
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	render.JSON(w, r, map[string]string{"status": "live"})
 }
